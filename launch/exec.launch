@@ -1,0 +1,44 @@
+<launch>
+
+    <node pkg = "rosbag" name = "recordings" type = "play" args = "-l $(find project)/bag/project.bag"/>
+
+    <group ns = "car"> 
+    
+        <param name="x0" value="4410124.0" />
+        <param name="y0" value="720727.8750" />
+        <param name="z0" value="4536098.0" />
+
+        <param name="child_frame_id" value="car" />
+
+        <node pkg = "project" name = "converter" type = "converter" output = "screen"/>
+        <node pkg = "project" name = "tf" type = "tfNode"/>
+
+    </group>
+
+    <group ns = "obstacle"> 
+
+        <param name="x0" value="4410124.0" />
+        <param name="y0" value="720727.8750" />
+        <param name="z0" value="4536098.0" />
+
+        <param name="child_frame_id" value="obstacle" />
+
+        <remap from = "/swiftnav/front/gps_pose" to = "/swiftnav/obs/gps_pose" />
+        <node pkg = "project" name = "converter" type = "converter" output = "screen"/>
+        <node pkg = "project" name = "tf" type = "tfNode"/>
+        
+    </group>
+    
+</launch>
+
+
+
+
+
+
+
+
+
+
+
+
