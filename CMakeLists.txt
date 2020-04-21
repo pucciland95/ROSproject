@@ -6,6 +6,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   tf
+  message_filters
 )
 
 
@@ -23,11 +24,17 @@ add_dependencies(converter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED
 add_executable(tfNode src/tfNode.cpp)
 add_dependencies(tfNode ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+add_executable(distComp src/distComp.cpp)
+
 ## Specify libraries to link a library or executable target against
 target_link_libraries(converter
   ${catkin_LIBRARIES}
 )
 
 target_link_libraries(tfNode
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(distComp
   ${catkin_LIBRARIES}
 )

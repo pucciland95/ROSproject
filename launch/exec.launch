@@ -10,7 +10,7 @@
 
         <param name="child_frame_id" value="car" />
 
-        <node pkg = "project" name = "converter" type = "converter" output = "screen"/>
+        <node pkg = "project" name = "converter" type = "converter"/>
         <node pkg = "project" name = "tf" type = "tfNode"/>
 
     </group>
@@ -24,11 +24,13 @@
         <param name="child_frame_id" value="obstacle" />
 
         <remap from = "/swiftnav/front/gps_pose" to = "/swiftnav/obs/gps_pose" />
-        <node pkg = "project" name = "converter" type = "converter" output = "screen"/>
+        <node pkg = "project" name = "converter" type = "converter"/>
         <node pkg = "project" name = "tf" type = "tfNode"/>
         
     </group>
     
+    <node pkg = "project" name = "distComp" type = "distComp"/>
+
 </launch>
 
 
