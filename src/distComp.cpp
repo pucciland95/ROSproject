@@ -3,6 +3,7 @@
 #include <message_filters/subscriber.h>
 #include <message_filters/time_synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
+#include "project/customMsg.h"
 
 class pub_sub_filter{
 
@@ -19,8 +20,8 @@ class pub_sub_filter{
             pSync->registerCallback(boost::bind(&pub_sub_filter::distanceCallbackComp, this, _1, _2));
             //sync.registerCallback(boost::bind(&pub_sub_filter::distanceCallbackComp, this, _1, _2));
 
-            //pub = n.advertise<std_msgs::Float64>("distance", 1);
-            //pub.publish(distance);
+            pub = n.advertise<project::customMsg>("distance", 1);
+            
         }
 
         void distanceCallbackComp(const nav_msgs::Odometry::ConstPtr& msg1, const nav_msgs::Odometry::ConstPtr& msg2){
@@ -52,7 +53,30 @@ class pub_sub_filter{
 
             if (distance > 100)
                 distance = std::numeric_limits<double>::quiet_NaN();
-            ROS_INFO("The distance is: %f \n", distance);
+            
+            //ROS_INFO("The distance is: %f \n", distance);
+
+            project::customMsg customMsg;
+
+            customMsg.distance = distance;
+
+            if (distance > 5){
+                customMsg.status = "Safe";
+            }
+            else if ( distance <= 5 && distance >= 1){
+                customMsg.status = "Unsafe";
+            }
+            else if (distance < 1){
+                customMsg.status = "Crash";
+            }
+            else{
+                customMsg.status = "Unknown";
+            }
+
+
+            pub.publish(customMsg);
+
+
 
         }
 
