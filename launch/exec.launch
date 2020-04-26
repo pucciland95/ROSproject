@@ -29,6 +29,9 @@
         
     </group>
 
+    <param name="lb" value="1.0" />
+    <param name="ub" value="5.0" />
+
     <node pkg = "project" name = "distComp" type = "distComp" output="screen"/>
 
 </launch>

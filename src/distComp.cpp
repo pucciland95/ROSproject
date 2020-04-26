@@ -13,6 +13,9 @@ class pub_sub_filter{
             sub1.subscribe(n, "/car/EMU_pose", 1);
             sub2.subscribe(n, "/obstacle/EMU_pose", 1);
 
+            n.getParam("lb", lb);
+            n.getParam("ub", ub);
+
             //typedef message_filters::sync_policies::ApproximateTime<nav_msgs::Odometry, nav_msgs::Odometry> mySyncPolicy;
 
             //message_filters::Synchronizer<mySyncPolicy> sync(mySyncPolicy(10), sub1, sub2);
@@ -60,23 +63,20 @@ class pub_sub_filter{
 
             customMsg.distance = distance;
 
-            if (distance > 5){
+            if (distance > ub){
                 customMsg.status = "Safe";
             }
-            else if ( distance <= 5 && distance >= 1){
+            else if ( distance <= ub && distance >= lb){
                 customMsg.status = "Unsafe";
             }
-            else if (distance < 1){
+            else if (distance < lb){
                 customMsg.status = "Crash";
             }
             else{
                 customMsg.status = "Unknown";
             }
 
-
             pub.publish(customMsg);
-
-
 
         }
 
@@ -96,6 +96,10 @@ class pub_sub_filter{
         ros::Timer timer;
 
         float distance;
+
+        // Bounds for status flag
+        float lb;
+        float ub;
 
 
 };
