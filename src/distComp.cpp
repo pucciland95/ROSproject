@@ -9,42 +9,67 @@ class pub_sub_filter{
     public:
         pub_sub_filter(){
 
-            message_filters::Subscriber<nav_msgs::Odometry> sub1(n, "/car/EMU_pose", 1);
-            message_filters::Subscriber<nav_msgs::Odometry> sub2(n, "/obstacle/EMU_pose", 1);
+            sub1.subscribe(n, "/car/EMU_pose", 1);
+            sub2.subscribe(n, "/obstacle/EMU_pose", 1);
 
-            typedef message_filters::sync_policies::ApproximateTime<nav_msgs::Odometry, nav_msgs::Odometry> mySyncPolicy;
+            //typedef message_filters::sync_policies::ApproximateTime<nav_msgs::Odometry, nav_msgs::Odometry> mySyncPolicy;
 
-            message_filters::Synchronizer<mySyncPolicy> sync(mySyncPolicy(10), sub1, sub2);
-            sync.registerCallback(boost::bind(&pub_sub_filter::distanceCallback, _1, _2));
-        
-            pub = n.advertise<float>("distance", 1);
-            pub.publish(distance);
+            //message_filters::Synchronizer<mySyncPolicy> sync(mySyncPolicy(10), sub1, sub2);
+            pSync.reset(new sync(mySyncPolicy(10), sub1, sub2));
+            pSync->registerCallback(boost::bind(&pub_sub_filter::distanceCallbackComp, this, _1, _2));
+            //sync.registerCallback(boost::bind(&pub_sub_filter::distanceCallbackComp, this, _1, _2));
+
+            //pub = n.advertise<std_msgs::Float64>("distance", 1);
+            //pub.publish(distance);
         }
 
-
-
-        void pub_sub_filter::distanceCallback(const nav_msgs::Odometry::ConstPtr& msg1, const nav_msgs::Odometry::ConstPtr& msg2){
+        void distanceCallbackComp(const nav_msgs::Odometry::ConstPtr& msg1, const nav_msgs::Odometry::ConstPtr& msg2){
 
             //ROS_INFO ("Received two messages: (%f,%f,%f) and (%f,%f,%f)", msg1->pose.pose.position.x ,msg1->pose.pose.position.y, msg1->pose.pose.position.z, msg2->pose.pose.position.x ,msg2->pose.pose.position.y, msg2->pose.pose.position.z);
             float x1 = msg1->pose.pose.position.x;
+            //ROS_INFO("This is the value of xCar: %f \n", x1);
             float x2 = msg2->pose.pose.position.x;
+            //ROS_INFO("This is the value of xObstacle: %f \n", x2);
 
             float y1 = msg1->pose.pose.position.y;
+            //ROS_INFO("This is the value of yCar: %f \n", y1);
             float y2 = msg2->pose.pose.position.y;
+            //ROS_INFO("This is the value of yObstacle: %f \n", y2);
+
 
             float z1 = msg1->pose.pose.position.z;
+            //ROS_INFO("This is the value of ZCar: %f \n", z1);
             float z2 = msg2->pose.pose.position.z;
-            
-            distance = sqrt(pow(x1-x2, 2) + pow(y1-y2, 2) + pow(z1-z2, 2) );
+            //ROS_INFO("This is the value of ZObstale: %f \n", z2);
+
+            if(isnan(x1) || isnan(y1) || isnan(z1) || 
+               isnan(x2) || isnan(y2) || isnan(z2)){
+                distance = std::numeric_limits<double>::quiet_NaN();
+            }
+
+            else
+                distance = sqrt(pow(x1-x2, 2) + pow(y1-y2, 2) + pow(z1-z2, 2) );
+
+            if (distance > 100)
+                distance = std::numeric_limits<double>::quiet_NaN();
+            ROS_INFO("The distance is: %f \n", distance);
+
         }
 
     private:
 
         ros::NodeHandle n;
 
-        ros::Publisher pub;
+        message_filters::Subscriber<nav_msgs::Odometry> sub1;
+        message_filters::Subscriber<nav_msgs::Odometry> sub2;
 
-        //ros::Timer timer;
+        typedef message_filters::sync_policies::ApproximateTime<nav_msgs::Odometry, nav_msgs::Odometry> mySyncPolicy;
+        typedef message_filters::Synchronizer<mySyncPolicy> sync;
+
+        boost::shared_ptr<sync> pSync;
+
+        ros::Publisher pub;
+        ros::Timer timer;
 
         float distance;
 

@@ -28,8 +28,8 @@
         <node pkg = "project" name = "tf" type = "tfNode"/>
         
     </group>
-    
-    <node pkg = "project" name = "distComp" type = "distComp"/>
+
+    <node pkg = "project" name = "distComp" type = "distComp" output="screen"/>
 
 </launch>
 
