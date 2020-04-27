@@ -4,6 +4,8 @@
 #include <message_filters/time_synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
 #include "project/customMsg.h"
+#include <dynamic_reconfigure/server.h>
+#include "project/parametersConfig.h"
 
 class pub_sub_filter{
 
@@ -24,8 +26,20 @@ class pub_sub_filter{
             //sync.registerCallback(boost::bind(&pub_sub_filter::distanceCallbackComp, this, _1, _2));
 
             pub = n.advertise<project::customMsg>("distance", 1);
-            
+
+            f = boost::bind(&pub_sub_filter::dynParCallback, this, _1, _2);
+            server.setCallback(f);
+
         }
+
+        void dynParCallback(project::parametersConfig &config, uint32_t level){
+
+            lb = config.lb;
+            ub = config.ub;
+            ROS_INFO("Bound changed");
+        }
+
+
 
         void distanceCallbackComp(const nav_msgs::Odometry::ConstPtr& msg1, const nav_msgs::Odometry::ConstPtr& msg2){
 
@@ -76,7 +90,7 @@ class pub_sub_filter{
                 customMsg.status = "Unknown";
             }
 
-            pub.publish(customMsg);
+            pub.publish(customMsg);   
 
         }
 
@@ -98,8 +112,13 @@ class pub_sub_filter{
         float distance;
 
         // Bounds for status flag
-        float lb;
-        float ub;
+        int lb;
+        int ub;
+
+        //Dynamic reconfig parameters
+
+        dynamic_reconfigure::Server<project::parametersConfig> server;
+        dynamic_reconfigure::Server<project::parametersConfig>::CallbackType f;
 
 
 };
@@ -107,9 +126,7 @@ class pub_sub_filter{
 int main(int argc, char** argv){
 
     ros::init(argc, argv, "sub_sync");
-
     pub_sub_filter pub_sub_filter;
-
     ros::spin();
     
     return 0;

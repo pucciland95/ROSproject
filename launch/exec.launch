@@ -32,7 +32,9 @@
     <param name="lb" value="1.0" />
     <param name="ub" value="5.0" />
 
-    <node pkg = "project" name = "distComp" type = "distComp" output="screen"/>
+    <node pkg = "project" name = "distComp" type = "distComp"/>
+    <node pkg = "project" name = "distanceSrv" type = "distanceSrv"/>
+    <node pkg = "project" name = "client" type = "clientDist"/>
 
 </launch>
 

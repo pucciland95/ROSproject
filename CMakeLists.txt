@@ -9,6 +9,17 @@ find_package(catkin REQUIRED COMPONENTS
   nav_msgs
   message_filters
   message_generation
+  dynamic_reconfigure
+)
+
+generate_dynamic_reconfigure_options(
+  cfg/parameters.cfg
+  
+)
+
+add_service_files(DIRECTORY srv
+  FILES
+  distance.srv
 )
 
 add_message_files(DIRECTORY msg
@@ -17,9 +28,10 @@ add_message_files(DIRECTORY msg
 )
 
 
- generate_messages(
+generate_messages(
     DEPENDENCIES
     std_msgs
+    nav_msgs
 )
 
 catkin_package( CATKIN_DEPENDS
@@ -44,6 +56,14 @@ add_dependencies(distComp ${${PROJECT_NAME}_EXPORTED_TARGETS})
 add_dependencies(distComp ${catkin_EXPORTED_TARGETS})
 add_dependencies(distComp project_generate_messages_cpp)
 target_link_libraries(distComp ${catkin_LIBRARIES})
+
+add_executable(distanceSrv src/distanceSrv.cpp)
+target_link_libraries(distanceSrv ${catkin_LIBRARIES})
+add_dependencies(distanceSrv ${catkin_EXPORTED_TARGETS})
+
+add_executable(clientDist src/client.cpp)
+target_link_libraries(clientDist ${catkin_LIBRARIES})
+add_dependencies(clientDist ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(converter
